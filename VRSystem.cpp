@@ -227,7 +227,7 @@ bool VRSystem::init(){
 		//vr::VRSettings()->SetBool(vr::k_pch_SteamVR_Section, vr::k_pch_SteamVR_AllowAsyncReprojection_Bool, true);
 
 		// Apply settings and save to steamvr.vrsettings (for Windows usually in c:\Program Files (x86)\Steam\config)
-		vr::VRSettings()->Sync();
+		//vr::VRSettings()->Sync();
 	}
 
 	/*
