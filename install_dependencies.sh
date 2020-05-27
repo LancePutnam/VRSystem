@@ -18,7 +18,7 @@ elif binary_exists "port"; then
 	echo 'Found MacPorts'
 elif uname -o | grep -q "Msys"; then
 
-	# MSYS
+	# Mingw/MSYS
 	if files_exist /msys.bat; then
 		echo 'Found MinGW / MSYS'
 		if ! binary_exists "wget"; then
@@ -34,7 +34,7 @@ elif uname -o | grep -q "Msys"; then
 		DOWNLOAD="wget --no-check-certificate"
 		install -d $DESTDIR/bin/ $DESTDIR/include/ $DESTDIR/lib/
 
-	# MSYS2
+	# Mingw64/MSYS2
 	else
 		echo 'Found MinGW-w64 / MSYS2'
 
@@ -48,7 +48,7 @@ elif uname -o | grep -q "Msys"; then
 
 		#echo $PKGS
 		pacman -Syu
-		#pacman -S $PKGS
+		pacman -S $PKGS
 
 		# Manual installation
 		DESTDIR=/mingw64
