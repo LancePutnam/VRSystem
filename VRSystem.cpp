@@ -520,6 +520,8 @@ void VRSystem::render(std::function<void (void)> userDraw){
 	sendTexToHMD(RIGHT, mFBORight);
 	//printGLError("sendTexToHMD"); // FIXME: throwing GL error "GL_INVALID_OPERATION" here
 
+	// vr::IVRCompositor::Submit recommends to call glFlush after submitting both eyes
+
 	// Tell the compositor it is free to start its rendering work
 	// Necessary???
 	//vr::VRCompositor()->PostPresentHandoff();
