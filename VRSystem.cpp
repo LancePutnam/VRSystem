@@ -245,13 +245,15 @@ bool VRSystem::gpuCreate(){
 
 	if(!valid()) return false;
 
+	renderSize(mRenderWidth, mRenderHeight); // in case called before init
+
 	//DPRINTF("Using render target size %d x %d\n", mRenderWidth, mRenderHeight);
 	if(!mFBOLeft.create(mRenderWidth, mRenderHeight)){
-		printf("%s - Unable to create left FBO\n", __FUNCTION__);
+		printf("%s - Unable to create left FBO @ %d x %d\n", __FUNCTION__, mRenderWidth, mRenderHeight);
 		return false;
 	}
 	if(!mFBORight.create(mRenderWidth, mRenderHeight)){
-		printf("%s - Unable to create right FBO\n", __FUNCTION__);
+		printf("%s - Unable to create right FBO @ %d x %d\n", __FUNCTION__, mRenderWidth, mRenderHeight);
 		mFBOLeft.destroy();
 		return false;
 	}
@@ -281,6 +283,7 @@ VRSystem& VRSystem::renderSize(unsigned w, unsigned h, double mult){
 		mRenderWidth  = w*mult + 0.5;
 		mRenderHeight = h*mult + 0.5;
 	}
+	//DPRINTF("%s - set render size to %d x %d\n", __FUNCTION__, mRenderWidth, mRenderHeight);
 	return *this;
 }
 
