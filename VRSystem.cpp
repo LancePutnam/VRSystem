@@ -349,8 +349,10 @@ void VRSystem::render(std::function<void (void)> userDraw){
 
 	if(!mFBOLeft.valid()) gpuCreate(); // Ensure FBOs are created
 
+	bool updatePosesBeforeRender = false;
+
 	// In the comment for WaitGetPoses, it says to call at the last minute before rendering. This does appear to work best in practice, however, any poses used before this call are one frame behind the ones used for render. The OpenVR example updates the poses after present to fix the delay, but calling WaitGetPoses after render introduces jitter.
-	updatePoses();
+	if(updatePosesBeforeRender || mFirstRender) updatePoses();
 
 	pushViewport(); // Push current viewport since it's global!
 	glDisable(GL_SCISSOR_TEST);
@@ -537,7 +539,9 @@ void VRSystem::render(std::function<void (void)> userDraw){
 
 	// OpenVR example updates poses _after_ render commands, however this introduces tons of jitter.
 	// https://github.com/ValveSoftware/openvr/blob/5aa6c5f0f6520c59c4dce124541ecc62604fd7a5/samples/hellovr_opengl/hellovr_opengl_main.cpp#L847
-	//updatePoses();
+	if(!updatePosesBeforeRender) updatePoses();
+	
+	mFirstRender = false;
 }
 
 void VRSystem::drawTexture(unsigned tex, float sx, float sy, float ax, float ay) const {

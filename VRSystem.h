@@ -613,6 +613,7 @@ private:
 	bool mLeftPresent = false;
 	bool mWearingHMD = false;
 	bool mOverrideFixedModelView = false;
+	bool mFirstRender = true;
 	Shape mMaskShape = ELLIPSE;
 
 	Matrix4 mParentPose;
