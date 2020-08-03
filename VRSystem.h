@@ -400,6 +400,9 @@ public:
 	/// The projection matrix will be determined by the HMD while the modelview
 	/// is left unchanged.
 	void render(std::function<void (void)> userDraw);
+	
+	/// Whether render is doing the first eye pass
+	bool firstEyePass() const { return eye() == LEFT; }
 
 	/// Draw rendered scene to current viewport
 	
