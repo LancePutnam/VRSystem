@@ -546,8 +546,10 @@ public:
 
 	/// Set size of vignette used to reduce optical flow and vection
 	VRSystem& vignette(float rad, float fade=0.1){
-		mVigRad=rad; mVigFade=fade;
-		updateVigMesh();
+		if(mVigRad != rad || mVigFade != fade){
+			mVigRad=rad; mVigFade=fade;
+			updateVigMesh();
+		}
 		return *this;
 	}
 
