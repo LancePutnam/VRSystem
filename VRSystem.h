@@ -520,6 +520,9 @@ public:
 	/// Whether VR initialized
 	bool valid() const { return mImpl; }
 
+	/// Current frame rate of HMD
+	float frameRate() const;
+
 	/// Whether displaying graphics on headset
 	bool display() const { return mDisplay; }
 	VRSystem& display(bool v){ mDisplay=v; return *this; }
@@ -603,6 +606,7 @@ private:
 	vr::TrackedDevicePose_t mTrackedDevicePoses[MAX_TRACKED_DEVICES];
 	std::vector<unsigned> mDeviceIndices[NUM_DEVICE_TYPES];
 	//Matrix4 mDevicePoses[MAX_TRACKED_DEVICES];
+	int mDevIdxHMD = -1;
 
 	vr::VRControllerState_t mControllerStates[MAX_TRACKED_DEVICES];
 	Controller mControllers[MAX_TRACKED_DEVICES];

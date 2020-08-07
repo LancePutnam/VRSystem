@@ -165,6 +165,18 @@ bool VRSystem::init(){
 			return false;
 		}
 
+		// This doesn't work!
+		/*vr::TrackedDeviceIndex_t devHMD;
+		if(mImpl->GetSortedTrackedDeviceIndicesOfClass(vr::TrackedDeviceClass_HMD, &devHMD, 1)){
+			mDevIdxHMD = devHMD;
+		}*/
+		for(unsigned i=0; i<vr::k_unMaxTrackedDeviceCount; ++i){
+			if(vr::TrackedDeviceClass_HMD == mImpl->GetTrackedDeviceClass(i)){
+				mDevIdxHMD = i;
+				break;
+			}
+		}
+
 		/*
 		auto hiddenAreaMesh = mImpl->GetHiddenAreaMesh(vr::Eye_Left);
 	
@@ -299,6 +311,16 @@ void VRSystem::shutdown(){
 		vr::VR_Shutdown();
 		mImpl = NULL;
 	}
+}
+
+float VRSystem::frameRate() const {
+	if(valid() && mDevIdxHMD>=0){
+		vr::ETrackedPropertyError err;
+		auto v = mImpl->GetFloatTrackedDeviceProperty(mDevIdxHMD, vr::Prop_DisplayFrequency_Float, &err);
+		if(vr::TrackedProp_Success == err) return v;
+		//printf("%d\n", err);
+	}
+	return 90.f; // TODO: let user specify this
 }
 
 void VRSystem::updateVigMesh(){
