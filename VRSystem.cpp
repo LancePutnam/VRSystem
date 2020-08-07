@@ -1214,7 +1214,7 @@ bool VRSystem::grabCameraFrame(){
 }
 
 void VRSystem::print() const {
-	printf("[VR] res: %d x %d, near: %g, far: %g\n", renderWidth(), renderHeight(), near(), far());
+	printf("[VR] %d x %d @ %g Hz, near: %g, far: %g\n", renderWidth(), renderHeight(), frameRate(), near(), far());
 }
 
 Matrix4 toMatrix4(const vr::HmdMatrix34_t& mat){
