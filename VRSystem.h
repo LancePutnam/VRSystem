@@ -406,11 +406,14 @@ public:
 
 	/// Draw rendered scene to current viewport
 	
-	/// Units are in [0,1].
-	///
-	//void drawFrameBuffer(int w, int h, int x=0, int y=0) const;
+	/// @param[in] eye			eye frame buffer to draw
+	/// @param[in] stretchx		stretch factor along x axis
+	/// @param[in] stretchy		stretch factor along y axis
+	/// @param[in] anchorx		origin of x stretch; [0,1] -> [left, right]
+	/// @param[in] anchory		origin of y stretch; [0,1] -> [bottom, top]
 	void drawFrameBuffer(int eye=0, float stretchx=1, float stretchy=1, float anchorx=0, float anchory=0) const;
 
+	/// Set brightness of drawFrameBuffer
 	VRSystem& drawBrightness(float v){ mBright = v; return *this; }
 
 	/// Get generic tracked device
