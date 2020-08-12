@@ -413,9 +413,6 @@ public:
 
 	VRSystem& drawBrightness(float v){ mBright = v; return *this; }
 
-	/// Scale size of framebuffer (useful screen rendering)
-	void frameBufferScale(int eye, float sx, float sy){}
-
 	/// Get generic tracked device
 	TrackedDevice& trackedDevice(int i){ return mTrackedDevices[i]; }
 	const TrackedDevice& trackedDevice(int i) const { return mTrackedDevices[i]; }
