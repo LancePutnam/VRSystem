@@ -21,7 +21,7 @@
 #define DPRINTF(...) printf("[VRSystem::%s] ", __FUNCTION__); printf(__VA_ARGS__)
 
 typedef VRSystem::Matrix4 Matrix4;
-
+typedef VRSystem::Vec4 Vec4;
 
 void Matrix4::print() const {
 	for(int r=0; r<4; ++r){
@@ -387,7 +387,7 @@ void VRSystem::render(std::function<void (void)> userDraw){
 	}//*/
 
 	auto renderEye = [this, &userDraw](int eye, const FBO& fbo){
-		mEye = eye;
+		mEyePass = eye;
 		#ifdef MULTISAMPLING
 			glEnable(GL_MULTISAMPLE);
 			glBindFramebuffer(GL_FRAMEBUFFER, fbo.mRenderBuf);
@@ -399,7 +399,7 @@ void VRSystem::render(std::function<void (void)> userDraw){
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
 		// 
-		if(mHiddenAreaMask && !(mLeftPresent && (LEFT==mEye))){
+		if(mHiddenAreaMask && !(mLeftPresent && (LEFT==mEyePass))){
 			//glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); // for no color write
 			glMatrixMode(GL_PROJECTION);
 			glLoadIdentity();
@@ -408,7 +408,7 @@ void VRSystem::render(std::function<void (void)> userDraw){
 			/* Note: the OpenVR mask seems to be rather conservative
 			static const float mv[] = {2,0,0,0, 0,2,0,0, 0,0,2,0, -1,-1,-1,1};
 			glLoadMatrixf(mv);
-			auto hiddenAreaMesh = mImpl->GetHiddenAreaMesh(mEye);
+			auto hiddenAreaMesh = mImpl->GetHiddenAreaMesh(mEyePass);
 			if(NULL != hiddenAreaMesh.pVertexData){
 				//DPRINTF("%d\n", hiddenAreaMesh.unTriangleCount);
 				if(0){
@@ -451,7 +451,7 @@ void VRSystem::render(std::function<void (void)> userDraw){
 			case RECT: verts=rect; vertBytes=sizeof(rect); break;
 			}
 
-			glLoadMatrixf(mv + (LEFT==mEye ? 0 : 16));
+			glLoadMatrixf(mv + (LEFT==mEyePass ? 0 : 16));
 			glEnableClientState(GL_VERTEX_ARRAY);
 			glVertexPointer(2, GL_BYTE, 0, (const GLvoid *)verts);
 			glColor4ub(mBackground[0],mBackground[1],mBackground[2],255);
@@ -653,6 +653,10 @@ const Matrix4& VRSystem::projection(int eye) const {
 	return eyeToScreen(eye);// * eyeToHead(eye);
 }
 
+const Vec4& VRSystem::eye(int which) const {
+	return mEye[which];
+}
+
 const Matrix4& VRSystem::eyeToScreen(int eye) const {
 	return mEyeToScreen[eye];
 }
@@ -784,6 +788,7 @@ void VRSystem::updatePoses(){
 		mHeadToEye[i] = toMatrix4(mImpl->GetEyeToHeadTransform(toOVREye(i)));
 			//printf("mHeadToEye (eye %d) =\n", eye); mHeadToEye[i].print();
 		mHeadToEye[i].pos()[0] *= mEyeDistScale;
+		mEye[i].set((poseHMD() * mHeadToEye[i]).pos());
 		mEyeToHead[i] = mHeadToEye[i].inverseRigid(); // could be faster, but do this for safety
 		mView[i] = mEyeToHead[i] * mViewHMD;
 	}

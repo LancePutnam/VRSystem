@@ -82,11 +82,12 @@ public:
 		typedef float value_type;
 		float x, y, z, w;
 		Vec4(float xi=0, float yi=0, float zi=0, float wi=0): x(xi), y(yi), z(zi), w(wi){}
-		Vec4(const float * src){ for(int i=0;i<4;++i) (*this)[i]=src[i]; }
+		Vec4(const float * src){ set(src); }
 		float * data(){ return &x; }
 		const float * data() const { return &x; }
 		float& operator[] (unsigned i){ return (&x)[i]; }
 		const float& operator[] (unsigned i) const { return (&x)[i]; }
+		void set(const float * src){ for(int i=0;i<4;++i) (*this)[i]=src[i]; }
 		float dot(const Vec4& v) const { return x*v.x + y*v.y + z*v.z + w*v.w; }
 	};
 
@@ -391,6 +392,8 @@ public:
 
 	~VRSystem();
 
+	/// Whether VR initialized
+	bool valid() const { return nullptr != mImpl; }
 
 	/// Destroy resources on GPU
 	void gpuDestroy();
@@ -402,7 +405,7 @@ public:
 	void render(std::function<void (void)> userDraw);
 	
 	/// Whether render is doing the first eye pass
-	bool firstEyePass() const { return eye() == LEFT; }
+	bool firstEyePass() const { return eyePass() == LEFT; }
 
 	/// Draw rendered scene to current viewport
 	
@@ -479,26 +482,33 @@ public:
 
 	/// Get view matrix for specified eye
 	const Matrix4& view(int eye) const;
-	const Matrix4& view() const { return view(eye()); }
+	const Matrix4& view() const { return view(eyePass()); }
 
 	/// Get projection (eye to screen) transform
 	const Matrix4& projection(int eye) const;
-	const Matrix4& projection() const { return projection(eye()); }
+	const Matrix4& projection() const { return projection(eyePass()); }
+
+	/// Get current eye being rendered (LEFT or RIGHT)
+	int eyePass() const { return mEyePass; }
+
+	/// Get eye position
+	const Vec4& eye(int which) const;
+	const Vec4& eye() const { return eye(eyePass());  } 
 
 	/// Get eye to screen transform
 	const Matrix4& eyeToScreen(int eye) const;
-	const Matrix4& eyeToScreen() const { return eyeToScreen(eye()); }
+	const Matrix4& eyeToScreen() const { return eyeToScreen(eyePass()); }
 
 	/// Get head to screen transform
 	Matrix4 headToScreen() const;
 
 	/// Get head to eye transform
 	const Matrix4& headToEye(int eye) const;
-	const Matrix4& headToEye() const { return headToEye(eye()); }
+	const Matrix4& headToEye() const { return headToEye(eyePass()); }
 
 	/// Get eye to head transform
 	const Matrix4& eyeToHead(int eye) const;
-	const Matrix4& eyeToHead() const { return eyeToHead(eye()); }
+	const Matrix4& eyeToHead() const { return eyeToHead(eyePass()); }
 
 
 	/// Set scale amount on eye distance
@@ -509,16 +519,6 @@ public:
 
 	VRSystem& far(float v);
 	float far() const { return mFar; }
-
-	/// Get current eye being rendered (LEFT or RIGHT)
-	int eye() const { return mEye; }
-
-	
-	vr::IVRSystem& impl(){ return *mImpl; }
-	const vr::IVRSystem& impl() const { return *mImpl; }
-
-	/// Whether VR initialized
-	bool valid() const { return mImpl; }
 
 	/// Current frame rate of HMD
 	float frameRate() const;
@@ -598,9 +598,12 @@ public:
 
 	void print() const;
 
+	vr::IVRSystem& impl(){ return *mImpl; }
+	const vr::IVRSystem& impl() const { return *mImpl; }
+
 private:
 
-	vr::IVRSystem * mImpl = NULL;
+	vr::IVRSystem * mImpl = nullptr;
 	int mFlags = 0;
 	TrackedDevice mTrackedDevices[MAX_TRACKED_DEVICES];
 	vr::TrackedDevicePose_t mTrackedDevicePoses[MAX_TRACKED_DEVICES];
@@ -611,7 +614,7 @@ private:
 	vr::VRControllerState_t mControllerStates[MAX_TRACKED_DEVICES];
 	Controller mControllers[MAX_TRACKED_DEVICES];
 
-	int mEye = LEFT;
+	int mEyePass = LEFT;
 	float mNear = 0.1;
 	float mFar = 100;
 	float mEyeDistScale = 1.;
@@ -628,6 +631,7 @@ private:
 	Matrix4 mParentPose;
 	Matrix4 mViewHMD;
 	Matrix4 mView[2];
+	Vec4 mEye[2];
 	Matrix4 mHeadToEye[2];
 	Matrix4 mEyeToHead[2];
 	Matrix4 mEyeToScreen[2];
