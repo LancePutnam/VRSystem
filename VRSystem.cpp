@@ -123,9 +123,15 @@ void VRSystem::Controller::print() const {
 }
 
 int VRSystem::controllerIndex(int hand) const {
-	//return hand+1; // HMD is 0
-	return mDeviceIndices[CONTROLLER].size()>=2 ? mDeviceIndices[CONTROLLER][hand] : hand+1;
-	//return mHandToDevice[hand];
+	// hand is 0 or 1
+	const auto& indices = mDeviceIndices[CONTROLLER];
+	if(indices.size() >= 2){
+		return indices[hand];
+	} else if(indices.size() == 1){ // only 1 controller
+		return indices[0]; // ignore hand
+	}
+	return 0; // always return valid index (for accessing mControllers)
+
 	//return mImpl->GetTrackedDeviceIndexForControllerRole(toOVRControllerRole(hand));
 }
 
@@ -695,15 +701,17 @@ void VRSystem::updatePoses(){
 
 	// Sort generic indices into class specific ones
 	vr::ETrackedDeviceClass ovrDevClasses[] = {vr::TrackedDeviceClass_HMD, vr::TrackedDeviceClass_Controller, vr::TrackedDeviceClass_GenericTracker, vr::TrackedDeviceClass_TrackingReference};
+
 	vr::TrackedDeviceIndex_t ovrIndices[MAX_TRACKED_DEVICES];
 
 	for(auto ovrDevClass : ovrDevClasses){
 		int numIndices = mImpl->GetSortedTrackedDeviceIndicesOfClass(ovrDevClass, ovrIndices, MAX_TRACKED_DEVICES);
 		auto devType = fromOVRDeviceClass(ovrDevClass);
+		//printf("Dev type %d has a count of %d\n", devType, numIndices);
 		auto& indices = mDeviceIndices[devType];
-		indices.resize(numIndices);
+		indices.clear();
 		for(int i=0; i<numIndices; ++i){
-			indices[i] = ovrIndices[i];
+			indices.push_back(ovrIndices[i]);
 		}
 	}
 
