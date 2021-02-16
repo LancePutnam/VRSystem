@@ -850,11 +850,20 @@ void VRSystem::updatePoses(){
 
 }
 
+unsigned VRSystem::numTrackedDevice(DeviceType t, unsigned maxNum) const {
+	int N = mDeviceIndices[t].size();
+	return N < maxNum ? N : maxNum;
+}
+
 const VRSystem::Controller& VRSystem::controller(int hand) const {
 	return mControllers[controllerIndex(hand)];
 }
 VRSystem::Controller& VRSystem::controller(int hand){
 	return mControllers[controllerIndex(hand)];
+}
+
+unsigned VRSystem::numControllers(unsigned maxNum) const {
+	return numTrackedDevice(CONTROLLER, maxNum);
 }
 
 const VRSystem::TrackedDevice& VRSystem::tracker(int i) const {
@@ -864,6 +873,10 @@ const VRSystem::TrackedDevice& VRSystem::tracker(int i) const {
 	}
 	static TrackedDevice invalidDevice;
 	return invalidDevice;
+}
+
+unsigned VRSystem::numTrackers(unsigned maxNum) const {
+	return numTrackedDevice(TRACKER, maxNum);
 }
 
 const Matrix4& VRSystem::poseDevice(int i) const {

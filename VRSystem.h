@@ -423,9 +423,15 @@ public:
 	TrackedDevice& trackedDevice(int i){ return mTrackedDevices[i]; }
 	const TrackedDevice& trackedDevice(int i) const { return mTrackedDevices[i]; }
 
+	/// Get number of active devices of a specific type
+	unsigned numTrackedDevice(DeviceType t, unsigned maxNum=0xffffffff) const;
+
 	/// Get controller object for specified hand
 	const Controller& controller(int hand) const;
 	Controller& controller(int hand);
+
+	/// Get number of active controllers
+	unsigned numControllers(unsigned maxNum=0xffffffff) const;
 
 	/// Get tracker
 
@@ -434,6 +440,9 @@ public:
 	/// +y towards pins, USB port
 	/// +z perp. away from tracker
 	const TrackedDevice& tracker(int i) const;
+
+	/// Get number of active trackers
+	unsigned numTrackers(unsigned maxNum=0xffffffff) const;
 
 	/// Get next event on event queue
 	
