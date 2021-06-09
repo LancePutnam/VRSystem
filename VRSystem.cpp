@@ -1,5 +1,6 @@
 #include <algorithm> // sort
 #include <cmath> // atan2
+#include <cstdint> // uintptr_t
 #include <stdio.h>
 
 #if defined(__APPLE__) && defined(__MACH__)
@@ -254,6 +255,17 @@ bool VRSystem::init(){
 	}//*/
 
 	renderSize(mRenderWidth, mRenderHeight);
+
+	/*
+	for(int j=0; j<4; ++j){
+	for(int i=0; i<4; ++i){
+		float u = float(i)/(4-1);
+		float v = float(j)/(4-1);
+		vr::DistortionCoordinates_t coord;
+		if(vr::VRSystem()->ComputeDistortion(vr::Eye_Left, u,v, &coord)){
+			printf("%f %f -> %f %f\n", u,v, coord.rfRed[0], coord.rfRed[1]);
+		}
+	}}//*/
 
 	//DPRINTF("OpenVR successfully initialized\n");
 	return true;
@@ -542,7 +554,7 @@ void VRSystem::render(std::function<void (void)> userDraw){
 		//auto colorSpace = vr::ColorSpace_Auto;
 		auto colorSpace = vr::ColorSpace_Gamma;
 		//auto colorSpace = vr::ColorSpace_Linear;
-		vr::Texture_t eyeTex = {(void*)fbo.mResolveTex, vr::TextureType_OpenGL, colorSpace};
+		vr::Texture_t eyeTex = {(void*)(uintptr_t)fbo.mResolveTex, vr::TextureType_OpenGL, colorSpace};
 		vr::VRTextureBounds_t texBounds = {0,0,1,1}; // umin, vmin, umax, vmax
 		if(vr::VRCompositorError_None != vr::VRCompositor()->Submit(toOVREye(eye), &eyeTex, &texBounds)){
 			DPRINTF("error submitting eye texture to HMD\n");
