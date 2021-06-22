@@ -57,7 +57,7 @@ elif uname -o | grep -q "Msys"; then
 		if files_exist $DESTDIR/lib/SRanipal*; then
 			echo 'Found SRanipal'
 		else
-			PKG=SRanipal_win_x64
+			PKG=SRanipal_133_win_x64
 			DIR=$PWD
 			mkdir /tmp/$PKG
 			cd /tmp/$PKG
