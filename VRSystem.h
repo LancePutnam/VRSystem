@@ -72,11 +72,29 @@ public:
 		TRIGGER = AXIS1
 	};
 
-
 	enum Shape{
 		ELLIPSE,
 		RECT
 	};
+
+	class Matrix4;
+/*
+/// Multiply row vector and matrix
+inline VRSystem::Vec4 operator* (const VRSystem::Vec4& v, const VRSystem::Matrix4& m){
+	//return Vec4(m.row<0>().dot(v), m.row<1>().dot(v), m.row<2>().dot(v), m.row<3>().dot(v));
+	return Vec4(Vec4(m.col(0)).dot(v), Vec4(m.col(1)).dot(v), Vec4(m.col(2)).dot(v), Vec4(m.col(3)).dot(v));
+}
+
+/// Multiply matrix and column vector
+inline VRSystem::Vec4 operator* (const VRSystem::Matrix4& m, const VRSystem::Vec4& v){
+	VRSystem::Vec4 r;
+	r[0] = v[0]*m[0] + v[1]*m[4] + v[2]*m[ 8] + v[3]*m[12];
+	r[1] = v[0]*m[1] + v[1]*m[5] + v[2]*m[ 9] + v[3]*m[13];
+	r[2] = v[0]*m[2] + v[1]*m[6] + v[2]*m[10] + v[3]*m[14];
+	r[3] = v[0]*m[3] + v[1]*m[7] + v[2]*m[11] + v[3]*m[15];
+	return r;
+	//return Vec4(m.row<0>().dot(v), m.row<1>().dot(v), m.row<2>().dot(v), m.row<3>().dot(v));
+}*/
 
 	struct Vec4{
 		typedef float value_type;
@@ -89,6 +107,7 @@ public:
 		const float& operator[] (unsigned i) const { return (&x)[i]; }
 		void set(const float * src){ for(int i=0;i<4;++i) (*this)[i]=src[i]; }
 		float dot(const Vec4& v) const { return x*v.x + y*v.y + z*v.z + w*v.w; }
+		Vec4 operator* (const Matrix4& m);
 	};
 
 
@@ -125,6 +144,14 @@ public:
 		const float * col(int i) const { return m + 4*i; }
 		/// Get row vector
 		Vec4 row(int i) const { return Vec4(m[i],m[i+4],m[i+8],m[i+12]); }
+		template <unsigned i>
+		Vec4 row() const {
+			static_assert(i<4, "Invalid row");
+			constexpr auto i2 = i+ 4;
+			constexpr auto i3 = i+ 8;
+			constexpr auto i4 = i+12;
+			return Vec4(m[i],m[i2],m[i3],m[i4]);
+		}
 		/// Get local direction vector along x axis
 		float * ux(){ return col(0); }
 		const float * ux() const { return col(0); }
@@ -156,7 +183,7 @@ public:
 		}
 
 		Vec4 operator* (const Vec4& v) const {
-			return Vec4(row(0).dot(v), row(1).dot(v), row(2).dot(v), row(3).dot(v));
+			return Vec4(row<0>().dot(v), row<1>().dot(v), row<2>().dot(v), row<3>().dot(v));
 		}
 
 		Matrix4& transpose(){
@@ -706,14 +733,8 @@ public:
 	[[deprecated]] const Matrix4& poseController(int hand) const;
 };
 
-
-inline VRSystem::Vec4 operator* (const VRSystem::Matrix4& m, const VRSystem::Vec4& v){
-	VRSystem::Vec4 r;
-	r[0] = v[0]*m[0] + v[1]*m[4] + v[2]*m[ 8] + v[3]*m[12];
-	r[1] = v[0]*m[1] + v[1]*m[5] + v[2]*m[ 9] + v[3]*m[13];
-	r[2] = v[0]*m[2] + v[1]*m[6] + v[2]*m[10] + v[3]*m[14];
-	r[3] = v[0]*m[3] + v[1]*m[7] + v[2]*m[11] + v[3]*m[15];
-	return r;
+inline VRSystem::Vec4 VRSystem::Vec4::operator* (const VRSystem::Matrix4& m){
+	return Vec4(dot(Vec4(m.col(0))), dot(Vec4(m.col(1))), dot(Vec4(m.col(2))), dot(Vec4(m.col(3))));
 }
 
 VRSystem::Matrix4 toMatrix4(const vr::HmdMatrix34_t& m);
