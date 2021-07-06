@@ -78,23 +78,6 @@ public:
 	};
 
 	class Matrix4;
-/*
-/// Multiply row vector and matrix
-inline VRSystem::Vec4 operator* (const VRSystem::Vec4& v, const VRSystem::Matrix4& m){
-	//return Vec4(m.row<0>().dot(v), m.row<1>().dot(v), m.row<2>().dot(v), m.row<3>().dot(v));
-	return Vec4(Vec4(m.col(0)).dot(v), Vec4(m.col(1)).dot(v), Vec4(m.col(2)).dot(v), Vec4(m.col(3)).dot(v));
-}
-
-/// Multiply matrix and column vector
-inline VRSystem::Vec4 operator* (const VRSystem::Matrix4& m, const VRSystem::Vec4& v){
-	VRSystem::Vec4 r;
-	r[0] = v[0]*m[0] + v[1]*m[4] + v[2]*m[ 8] + v[3]*m[12];
-	r[1] = v[0]*m[1] + v[1]*m[5] + v[2]*m[ 9] + v[3]*m[13];
-	r[2] = v[0]*m[2] + v[1]*m[6] + v[2]*m[10] + v[3]*m[14];
-	r[3] = v[0]*m[3] + v[1]*m[7] + v[2]*m[11] + v[3]*m[15];
-	return r;
-	//return Vec4(m.row<0>().dot(v), m.row<1>().dot(v), m.row<2>().dot(v), m.row<3>().dot(v));
-}*/
 
 	struct Vec4{
 		typedef float value_type;
