@@ -86,6 +86,11 @@ public:
 		Vec4(const float * src){ set(src); }
 		float * data(){ return &x; }
 		const float * data() const { return &x; }
+		template <class T> const T& as() const {
+			static_assert(sizeof(T)<=sizeof(*this),"Size mismatch");
+			static_assert(std::is_same<typename T::value_type,value_type>::value,"Type mismatch");
+			return *((T*)this);
+		}
 		float& operator[] (unsigned i){ return (&x)[i]; }
 		const float& operator[] (unsigned i) const { return (&x)[i]; }
 		void set(const float * src){ for(int i=0;i<4;++i) (*this)[i]=src[i]; }
@@ -116,7 +121,7 @@ public:
 		float * data(){ return m; }
 		const float * data() const { return m; }
 		template <class T> const T& as() const {
-			static_assert(sizeof(T)==sizeof(*this),"Size mismatch");
+			static_assert(sizeof(T)<=sizeof(*this),"Size mismatch");
 			static_assert(std::is_same<typename T::value_type,value_type>::value,"Type mismatch");
 			return *((T*)this);
 		}
