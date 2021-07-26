@@ -356,6 +356,8 @@ public:
 			return r;
 		}
 
+		int hand() const { return mHand; }
+
 	private:
 		friend class VRSystem;
 
@@ -370,6 +372,7 @@ public:
 
 		std::vector<unsigned char> mClickSeq, mClickSeqFinished;
 		float mClickTimer=0., mClickTimeMax=0.2;
+		unsigned char mHand = LEFT;
 		
 
 		static bool state(Bits states, unsigned i){

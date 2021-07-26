@@ -783,6 +783,12 @@ void VRSystem::updatePoses(){
 				}*/
 
 				mControllers[i] = dev;
+				switch(mImpl->GetControllerRoleForTrackedDeviceIndex(i)){
+				case vr::TrackedControllerRole_LeftHand:  mControllers[i].mHand = LEFT; break;
+				case vr::TrackedControllerRole_RightHand: mControllers[i].mHand = RIGHT; break;
+				default:;
+				}
+				
 			}
 
 		} else {
