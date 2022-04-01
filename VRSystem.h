@@ -369,6 +369,7 @@ public:
 		//unsigned char mClicks[sizeof(Bits)*8] = {0};
 		float mAxes[MAX_AXES][2] ={{0}};// Axis coordinates
 		float mAxisChanges[MAX_AXES][2] ={{0}};// Axis changes (velocities)
+		//Matrix4 mDownPoses[];
 
 		std::vector<unsigned char> mClickSeq, mClickSeqFinished;
 		float mClickTimer=0., mClickTimeMax=0.2;
@@ -484,6 +485,7 @@ public:
 	VRSystem& poseParent(const Mat4& m, bool overrideFixedModelView = true){
 		static_assert(sizeof(m)/sizeof(typename Mat4::value_type) >= 16,
 			"Matrix dimensions too small");
+		const auto oldParentPose = mParentPose;
 		mParentPose.set((const typename Mat4::value_type *)&m);
 		mOverrideFixedModelView = true;
 		if(!valid()){
@@ -491,7 +493,16 @@ public:
 			mViewHMD = mParentPose;
 			mViewHMD.invertRigid();
 			for(auto& v : mView) v = mViewHMD;
-		}
+		}/* else { // update current poses
+			const auto parentPoseDiff = mParentPose * oldParentPose.inverseRigid();
+			
+			for(auto& dev : mTrackedDevices) dev.updatePose(parentPoseDiff * dev.pose);
+			if(mDeviceIndices[HMD].size()){
+				mViewHMD = mTrackedDevices[mDeviceIndices[HMD][0]].pose;
+				mViewHMD.invertRigid();
+			}
+			for(auto& v : mView) v = mViewHMD;
+		}*/
 		return *this;
 	}
 

@@ -805,6 +805,15 @@ void VRSystem::updatePoses(){
 	// Update matrices
 	for(int i=0; i<2; ++i){
 		mEyeToScreen[i] = toMatrix4(mImpl->GetProjectionMatrix(toOVREye(i), mNear, mFar));
+
+		// GetProjectionMatrix appears to have a mistake.
+		// The near distance works out to be half of what is specified.
+		// https://github.com/ValveSoftware/openvr/issues/1052
+		// If OpenVR gets fixed, this should be removed, but will not affect anything if left in.
+		auto idz = 1./(mNear-mFar);
+		mEyeToScreen[i][10] = (mFar+mNear)*idz;
+		mEyeToScreen[i][14] = 2.*mFar*mNear*idz;
+
 		// Note: GetEyeToHeadTransform is really a head to eye translation matrix. From openvr.h:
 		/** Returns the transform from eye space to the head space. Eye space is the per-eye flavor of head
 		* space that provides stereo disparity. Instead of Model * View * Projection the sequence is Model * View * Eye^-1 * Projection. 
