@@ -331,9 +331,7 @@ public:
 		int axisSector(Button b, float divs=4., float rotate=0.125) const;
 
 		Controller& operator= (const TrackedDevice& d){
-			type = d.type;
-			pose = d.pose;
-			posePrev = d.posePrev;
+			if(&d != this) static_cast<TrackedDevice&>(*this) = d;
 			return *this;
 		}
 
