@@ -752,7 +752,7 @@ void VRSystem::updatePoses(){
 		auto& dev = mTrackedDevices[i];
 
 		if(mTrackedDevicePoses[i].bPoseIsValid){	
-			dev.updatePose(mParentPose * toMatrix4(mTrackedDevicePoses[i].mDeviceToAbsoluteTracking));
+			dev.updatePose(toMatrix4(mTrackedDevicePoses[i].mDeviceToAbsoluteTracking), mParentPose);
 
 			/* Warn about bad pose values (just a sanity check, should never happen)
 			for(auto v : dev.pose.m){

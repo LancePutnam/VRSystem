@@ -257,10 +257,12 @@ public:
 
 	struct TrackedDevice{
 		DeviceType type = INVALID;
-		Matrix4 pose;
+		Matrix4 pose;		///< Virtual world pose (can have transform parent)
 		Matrix4 posePrev;
+		Matrix4 poseAbs;	///< Absolute (tracking space) pose
 		bool valid() const { return INVALID!=type; }
-		void updatePose(const Matrix4& v){ posePrev=pose; pose=v; }
+		void updatePose(const Matrix4& v){ posePrev=pose; pose=v; poseAbs=v; }
+		void updatePose(const Matrix4& v, const Matrix4& parent){ posePrev=pose; pose=parent*v; poseAbs=v; }
 		/// Get pose differential
 		Matrix4 poseDiff() const { return pose * posePrev.inverseRigid(); }
 	};
@@ -646,7 +648,6 @@ private:
 	TrackedDevice mTrackedDevices[MAX_TRACKED_DEVICES];
 	vr::TrackedDevicePose_t mTrackedDevicePoses[MAX_TRACKED_DEVICES];
 	std::vector<unsigned> mDeviceIndices[NUM_DEVICE_TYPES];
-	//Matrix4 mDevicePoses[MAX_TRACKED_DEVICES];
 	int mDevIdxHMD = -1;
 
 	vr::VRControllerState_t mControllerStates[MAX_TRACKED_DEVICES];
@@ -744,7 +745,5 @@ VRSystem::Matrix4 toMatrix4(const vr::HmdMatrix44_t& m);
 const char * toString(vr::EVREventType v);
 const char * toString(VRSystem::EventType v);
 const char * toString(VRSystem::DeviceType v);
-
-[[deprecated]] typedef VRSystem OpenVRSystem;
 
 #endif // include guard
