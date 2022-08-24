@@ -823,7 +823,7 @@ void VRSystem::updatePoses(){
 		mHeadToEye[i] = toMatrix4(mImpl->GetEyeToHeadTransform(toOVREye(i)));
 			//printf("mHeadToEye (eye %d) =\n", eye); mHeadToEye[i].print();
 		mHeadToEye[i].pos()[0] *= mEyeDistScale;
-		mEye[i].set((poseHMD() * mHeadToEye[i]).pos());
+		mEye[i] = (poseHMD() * mHeadToEye[i]).pos();
 		mEyeToHead[i] = mHeadToEye[i].inverseRigid(); // could be faster, but do this for safety
 		mView[i] = mEyeToHead[i] * mViewHMD;
 	}

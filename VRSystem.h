@@ -128,12 +128,19 @@ public:
 		float& operator[] (unsigned i){ return m[i]; }
 		const float& operator[] (unsigned i) const { return m[i]; }
 		/// Get column vector
-		float * col(int i){ return m + 4*i; }
-		const float * col(int i) const { return m + 4*i; }
+		Vec4& col(int i){ return *(Vec4*)(m + 4*i); }
+		const Vec4& col(int i) const { return const_cast<Matrix4*>(this)->col(i); }
+		template <unsigned i> Vec4& col(){
+			static_assert(i<4, "Invalid column");
+			constexpr auto j = 4*i;
+			return *(Vec4*)(m + j);
+		}
+		template <unsigned i> const Vec4& col() const {
+			return const_cast<Matrix4*>(this)->col<i>(); 
+		}
 		/// Get row vector
 		Vec4 row(int i) const { return Vec4(m[i],m[i+4],m[i+8],m[i+12]); }
-		template <unsigned i>
-		Vec4 row() const {
+		template <unsigned i> Vec4 row() const {
 			static_assert(i<4, "Invalid row");
 			constexpr auto i2 = i+ 4;
 			constexpr auto i3 = i+ 8;
@@ -141,17 +148,17 @@ public:
 			return Vec4(m[i],m[i2],m[i3],m[i4]);
 		}
 		/// Get local direction vector along x axis
-		float * ux(){ return col(0); }
-		const float * ux() const { return col(0); }
+		Vec4& ux(){ return col<0>(); }
+		const Vec4& ux() const { return col<0>(); }
 		/// Get local direction vector along y axis
-		float * uy(){ return col(1); }
-		const float * uy() const { return col(1); }
+		Vec4& uy(){ return col<1>(); }
+		const Vec4& uy() const { return col<1>(); }
 		/// Get local direction vector along z axis
-		float * uz(){ return col(2); }
-		const float * uz() const { return col(2); }
+		Vec4& uz(){ return col<2>(); }
+		const Vec4& uz() const { return col<2>(); }
 		/// Get position/translation amount
-		float * pos(){ return col(3); }
-		const float * pos() const { return col(3); }
+		Vec4& pos(){ return col<3>(); }
+		const Vec4& pos() const { return col<3>(); }
 
 		Matrix4& identity(){
 			m[0]=1; m[4]=0; m[ 8]=0; m[12]=0;
