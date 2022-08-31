@@ -82,6 +82,7 @@ public:
 	struct Vec4{
 		typedef float value_type;
 		float x, y, z, w;
+		Vec4(const Vec4& v){ *this = v; }
 		Vec4(float xi=0, float yi=0, float zi=0, float wi=0): x(xi), y(yi), z(zi), w(wi){}
 		Vec4(const float * src){ set(src); }
 		float * data(){ return &x; }
@@ -91,11 +92,16 @@ public:
 			static_assert(std::is_same<typename T::value_type,value_type>::value,"Type mismatch");
 			return *((T*)this);
 		}
+		Vec4& operator= (const Vec4& v){ x=v.x; y=v.y; z=v.z; w=v.w; return *this; }
 		float& operator[] (unsigned i){ return (&x)[i]; }
 		const float& operator[] (unsigned i) const { return (&x)[i]; }
 		void set(const float * src){ for(int i=0;i<4;++i) (*this)[i]=src[i]; }
 		float dot(const Vec4& v) const { return x*v.x + y*v.y + z*v.z + w*v.w; }
-		Vec4 operator* (const Matrix4& m);
+		Vec4& operator+=(const Vec4& v){ x+=v.x; y+=v.y; z+=v.z; w+=v.w; return *this; }
+		Vec4  operator+ (const Vec4& v) const { return Vec4(*this)+=v; }
+		Vec4& operator*=(float s){ x*=s; y*=s; z*=s; w*=s; return *this; }
+		Vec4  operator* (float s) const { return Vec4(*this)*=s; }
+		Vec4  operator* (const Matrix4& m) const;
 	};
 
 
@@ -741,8 +747,8 @@ public:
 	[[deprecated]] const Matrix4& poseController(int hand) const;
 };
 
-inline VRSystem::Vec4 VRSystem::Vec4::operator* (const VRSystem::Matrix4& m){
-	return Vec4(dot(Vec4(m.col(0))), dot(Vec4(m.col(1))), dot(Vec4(m.col(2))), dot(Vec4(m.col(3))));
+inline VRSystem::Vec4 VRSystem::Vec4::operator* (const VRSystem::Matrix4& m) const {
+	return { dot(m.col<0>()), dot(m.col<1>()), dot(m.col<2>()), dot(m.col<3>()) };
 }
 
 VRSystem::Matrix4 toMatrix4(const vr::HmdMatrix34_t& m);
