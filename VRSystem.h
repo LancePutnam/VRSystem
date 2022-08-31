@@ -166,6 +166,12 @@ public:
 		Vec4& pos(){ return col<3>(); }
 		const Vec4& pos() const { return col<3>(); }
 
+		template <unsigned DirAxis>
+		Vec4 posAlong(float s){
+			static_assert(DirAxis<=2, "Invalid direction axis");
+			return pos() + col<DirAxis>()*s;
+		}
+
 		Matrix4& identity(){
 			m[0]=1; m[4]=0; m[ 8]=0; m[12]=0;
 			m[1]=0; m[5]=1; m[ 9]=0; m[13]=0;
