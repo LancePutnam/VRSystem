@@ -129,11 +129,9 @@ int VRSystem::controllerIndex(int hand) const {
 	if(indices.size() >= 2){
 		return indices[hand];
 	} else if(indices.size() == 1){ // only 1 controller
-		return indices[0]; // ignore hand
+		return indices[0]; // ignore hand, but can result in double triggers
 	}
 	return 0; // always return valid index (for accessing mControllers)
-
-	//return mImpl->GetTrackedDeviceIndexForControllerRole(toOVRControllerRole(hand));
 }
 
 VRSystem::VRSystem(int flags)
@@ -883,7 +881,7 @@ unsigned VRSystem::numTrackedDevice(DeviceType t, unsigned maxNum) const {
 }
 
 const VRSystem::Controller& VRSystem::controller(int hand) const {
-	return mControllers[controllerIndex(hand)];
+	return const_cast<VRSystem*>(this)->controller(hand);
 }
 VRSystem::Controller& VRSystem::controller(int hand){
 	return mControllers[controllerIndex(hand)];
