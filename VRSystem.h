@@ -167,7 +167,7 @@ public:
 		const Vec4& pos() const { return col<3>(); }
 
 		template <unsigned DirAxis>
-		Vec4 posAlong(float s){
+		Vec4 posAlong(float s) const {
 			static_assert(DirAxis<=2, "Invalid direction axis");
 			return pos() + col<DirAxis>()*s;
 		}
