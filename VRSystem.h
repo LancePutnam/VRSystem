@@ -685,6 +685,7 @@ private:
 	int mViewport[4];
 	bool mDisplay = true;
 	bool mHiddenAreaMask = true;
+	bool mUseCustomHiddenAreaMask = false;
 	unsigned char mBackground[3] = {0,0,0};
 	bool mLeftPresent = false;
 	bool mWearingHMD = false;

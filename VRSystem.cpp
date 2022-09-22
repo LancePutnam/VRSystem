@@ -172,35 +172,12 @@ bool VRSystem::init(){
 			return false;
 		}
 
-		// This doesn't work!
-		/*vr::TrackedDeviceIndex_t devHMD;
-		if(mImpl->GetSortedTrackedDeviceIndicesOfClass(vr::TrackedDeviceClass_HMD, &devHMD, 1)){
-			mDevIdxHMD = devHMD;
-		}*/
 		for(unsigned i=0; i<vr::k_unMaxTrackedDeviceCount; ++i){
 			if(vr::TrackedDeviceClass_HMD == mImpl->GetTrackedDeviceClass(i)){
 				mDevIdxHMD = i;
 				break;
 			}
 		}
-
-		/*
-		auto hiddenAreaMesh = mImpl->GetHiddenAreaMesh(vr::Eye_Left);
-	
-		if(NULL != hiddenAreaMesh.pVertexData){
-		}
-		else{
-			DPRINTF("Unable to obtain hidden area mesh\n");
-		}
-		//*/
-
-		/*struct HiddenAreaMesh_t{
-			const HmdVector2_t *pVertexData;
-			uint32_t unTriangleCount;
-		};
-
-		struct HmdVector2_t{ float v[2]; };
-		*/
 
 		if(!vr::VRCompositor()){ // Needed to get poses
 			DPRINTF("Failed to initialize VR Compositor!\n");
@@ -214,7 +191,11 @@ bool VRSystem::init(){
 
 		//DPRINTF("VR runtime path: %s\n", vr::VR_RuntimePath());
 	}
-	
+
+	if(manufacturer(hmd()).find("HTC") != std::string::npos){
+		mUseCustomHiddenAreaMask = true;
+	}
+
 	{
 		//auto err = vr::VRSettingsError_None;
 
@@ -423,61 +404,61 @@ void VRSystem::render(std::function<void (void)> userDraw){
 			glMatrixMode(GL_MODELVIEW);
 			glPushMatrix();
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-			/* Note: the OpenVR mask seems to be rather conservative
-			static const float mv[] = {2,0,0,0, 0,2,0,0, 0,0,2,0, -1,-1,-1,1};
-			glLoadMatrixf(mv);
-			auto hiddenAreaMesh = mImpl->GetHiddenAreaMesh(toOVREye(mEyePass));
-			if(NULL != hiddenAreaMesh.pVertexData){
-				//DPRINTF("%d\n", hiddenAreaMesh.unTriangleCount);
-				if(0){
-					for(int i=0; i<hiddenAreaMesh.unTriangleCount; ++i){
-						const auto& a = hiddenAreaMesh.pVertexData[i*3];
-						const auto& b = hiddenAreaMesh.pVertexData[i*3+1];
-						const auto& c = hiddenAreaMesh.pVertexData[i*3+2];
-						printf("[%2d]: (%f %f) (%f %f) (%f %f)\n", i, a.v[0], a.v[1], b.v[0], b.v[1], c.v[0], c.v[1]);
-					}
-				}
-				glEnableClientState(GL_VERTEX_ARRAY);
-				glVertexPointer(2, GL_FLOAT, 0, (const GLvoid *)hiddenAreaMesh.pVertexData);
-				glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE); glColor4ub(255,0,0,255); // red mask debug
-				glDrawArrays(GL_TRIANGLES, 0, 3*hiddenAreaMesh.unTriangleCount);
-				glDisableClientState(GL_VERTEX_ARRAY);
-			}//*/
-			/*struct HiddenAreaMesh_t{
-				const HmdVector2_t *pVertexData;
-				uint32_t unTriangleCount;
-			};
-			struct HmdVector2_t{ float v[2]; };*/
-
-			//* Hidden area mask
-			static const float R = 1.; // mask radius (Vive, Vive Pro)
-			//static const float R = 1.19; // mask radius (Index)
-			static const char ellipse[] = {93,0, 127,0, 97,27, 127,34, 89,51, 127,73, 71,73, 127,127, 47,89, 73,127, 19,99, 34,127, -10,103, 0,127, -40,99, -34,127, -67,89, -73,127, -91,73, -127,127, -109,51, -127,73, -121,27, -127,34, -124,0, -127,0, -121,-27, -127,-34, -109,-51, -127,-73, -91,-73, -127,-127, -67,-89, -73,-127, -40,-99, -34,-127, -10,-103, 0,-127, 19,-99, 34,-127, 47,-89, 73,-127, 71,-73, 127,-127, 89,-51, 127,-73, 97,-27, 127,-34, 93,0, 127,0};
-			
-			static const char rl=-117, rr=97, rb=-94, rt=114; // Vive Pro w/ min lens-to-eye
-			static const char rect[] = {rl,rb, -127,-127, rr,rb, 127,-127, rr,rt, 127,127, rl,rt, -127,127, rl,rb, -127,-127};
-			
-			static const float s = R/127.;
-			static const float mv[] = {
-				 s,0,0,0, 0,s,0,0, 0,0,s,0, 0,0,-1,1,
-				-s,0,0,0, 0,s,0,0, 0,0,s,0, 0,0,-1,1,
-			};
-
-			const auto * verts = ellipse;
-			int vertBytes = sizeof(ellipse);
-			switch(mMaskShape){
-			case RECT: verts=rect; vertBytes=sizeof(rect); break;
-			}
-
-			glLoadMatrixf(mv + (LEFT==mEyePass ? 0 : 16));
-			glEnableClientState(GL_VERTEX_ARRAY);
-			glVertexPointer(2, GL_BYTE, 0, (const GLvoid *)verts);
 			glColor4ub(mBackground[0],mBackground[1],mBackground[2],255);
 			//glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE); glColor4ub(255,0,0,255); // red mask debug
-			glDrawArrays(GL_TRIANGLE_STRIP, 0, vertBytes/sizeof(verts[0])/2);
-			glDisableClientState(GL_VERTEX_ARRAY);
-			//*/
+
+			if(mUseCustomHiddenAreaMask){
+				static const float R = 1.; // mask radius (Vive, Vive Pro)
+				//static const float R = 1.19; // mask radius (Index)
+				static const char ellipse[] = {93,0, 127,0, 97,27, 127,34, 89,51, 127,73, 71,73, 127,127, 47,89, 73,127, 19,99, 34,127, -10,103, 0,127, -40,99, -34,127, -67,89, -73,127, -91,73, -127,127, -109,51, -127,73, -121,27, -127,34, -124,0, -127,0, -121,-27, -127,-34, -109,-51, -127,-73, -91,-73, -127,-127, -67,-89, -73,-127, -40,-99, -34,-127, -10,-103, 0,-127, 19,-99, 34,-127, 47,-89, 73,-127, 71,-73, 127,-127, 89,-51, 127,-73, 97,-27, 127,-34, 93,0, 127,0};
+				
+				static const char rl=-117, rr=97, rb=-94, rt=114; // Vive Pro w/ min lens-to-eye
+				static const char rect[] = {rl,rb, -127,-127, rr,rb, 127,-127, rr,rt, 127,127, rl,rt, -127,127, rl,rb, -127,-127};
+				
+				static const float s = R/127.;
+				static const float mv[] = {
+					 s,0,0,0, 0,s,0,0, 0,0,s,0, 0,0,-1,1,
+					-s,0,0,0, 0,s,0,0, 0,0,s,0, 0,0,-1,1,
+				};
+
+				const auto * verts = ellipse;
+				int vertBytes = sizeof(ellipse);
+				switch(mMaskShape){
+				case RECT: verts=rect; vertBytes=sizeof(rect); break;
+				}
+
+				glLoadMatrixf(mv + (LEFT==mEyePass ? 0 : 16));
+				glEnableClientState(GL_VERTEX_ARRAY);
+				glVertexPointer(2, GL_BYTE, 0, (const GLvoid *)verts);
+				glDrawArrays(GL_TRIANGLE_STRIP, 0, vertBytes/sizeof(verts[0])/2);
+				glDisableClientState(GL_VERTEX_ARRAY);
+
+			} else {
+				// Note: the OpenVR mask seems to be rather conservative
+				static const float mv[] = {2,0,0,0, 0,2,0,0, 0,0,2,0, -1,-1,-1,1};
+				glLoadMatrixf(mv);
+				auto hiddenAreaMesh = mImpl->GetHiddenAreaMesh(toOVREye(mEyePass));
+				if(NULL != hiddenAreaMesh.pVertexData){
+					//DPRINTF("%d\n", hiddenAreaMesh.unTriangleCount);
+					if(0){
+						for(int i=0; i<hiddenAreaMesh.unTriangleCount; ++i){
+							const auto& a = hiddenAreaMesh.pVertexData[i*3];
+							const auto& b = hiddenAreaMesh.pVertexData[i*3+1];
+							const auto& c = hiddenAreaMesh.pVertexData[i*3+2];
+							printf("[%2d]: (%f %f) (%f %f) (%f %f)\n", i, a.v[0], a.v[1], b.v[0], b.v[1], c.v[0], c.v[1]);
+						}
+					}
+					glEnableClientState(GL_VERTEX_ARRAY);
+					glVertexPointer(2, GL_FLOAT, 0, (const GLvoid *)hiddenAreaMesh.pVertexData);
+					glDrawArrays(GL_TRIANGLES, 0, 3*hiddenAreaMesh.unTriangleCount);
+					glDisableClientState(GL_VERTEX_ARRAY);
+				}
+				/*struct HiddenAreaMesh_t{
+					const HmdVector2_t *pVertexData;
+					uint32_t unTriangleCount;
+				};
+				struct HmdVector2_t{ float v[2]; };*/
+			}
 
 			glPopMatrix();
 			//glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE); // for no color write
