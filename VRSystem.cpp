@@ -413,18 +413,19 @@ void VRSystem::render(std::function<void (void)> userDraw){
 		//printGLError("glBindFramebuffer in render");
 		glViewport(0, 0, mRenderWidth, mRenderHeight);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		
-		// 
+
 		if(mHiddenAreaMask && !(mLeftPresent && (LEFT==mEyePass))){
 			//glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); // for no color write
 			glMatrixMode(GL_PROJECTION);
 			glLoadIdentity();
 			glMatrixMode(GL_MODELVIEW);
 			glPushMatrix();
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
 			/* Note: the OpenVR mask seems to be rather conservative
 			static const float mv[] = {2,0,0,0, 0,2,0,0, 0,0,2,0, -1,-1,-1,1};
 			glLoadMatrixf(mv);
-			auto hiddenAreaMesh = mImpl->GetHiddenAreaMesh(mEyePass);
+			auto hiddenAreaMesh = mImpl->GetHiddenAreaMesh(toOVREye(mEyePass));
 			if(NULL != hiddenAreaMesh.pVertexData){
 				//DPRINTF("%d\n", hiddenAreaMesh.unTriangleCount);
 				if(0){
@@ -448,8 +449,8 @@ void VRSystem::render(std::function<void (void)> userDraw){
 			struct HmdVector2_t{ float v[2]; };*/
 
 			//* Hidden area mask
-			//static const float R = 1.14; // mask radius, will depend on lens
-			static const float R = 1.; // mask radius, will depend on lens
+			static const float R = 1.; // mask radius (Vive, Vive Pro)
+			//static const float R = 1.19; // mask radius (Index)
 			static const char ellipse[] = {93,0, 127,0, 97,27, 127,34, 89,51, 127,73, 71,73, 127,127, 47,89, 73,127, 19,99, 34,127, -10,103, 0,127, -40,99, -34,127, -67,89, -73,127, -91,73, -127,127, -109,51, -127,73, -121,27, -127,34, -124,0, -127,0, -121,-27, -127,-34, -109,-51, -127,-73, -91,-73, -127,-127, -67,-89, -73,-127, -40,-99, -34,-127, -10,-103, 0,-127, 19,-99, 34,-127, 47,-89, 73,-127, 71,-73, 127,-127, 89,-51, 127,-73, 97,-27, 127,-34, 93,0, 127,0};
 			
 			static const char rl=-117, rr=97, rb=-94, rt=114; // Vive Pro w/ min lens-to-eye
