@@ -883,6 +883,10 @@ unsigned VRSystem::numTrackedDevice(DeviceType t, unsigned maxNum) const {
 	return N < maxNum ? N : maxNum;
 }
 
+const VRSystem::TrackedDevice& VRSystem::hmd() const {
+	return mTrackedDevices[mDevIdxHMD];
+}
+
 const VRSystem::Controller& VRSystem::controller(int hand) const {
 	return const_cast<VRSystem*>(this)->controller(hand);
 }
