@@ -284,6 +284,9 @@ public:
 		void updatePose(const Matrix4& v, const Matrix4& parent){ posePrev=pose; pose=parent*v; poseAbs=v; }
 		/// Get pose differential
 		Matrix4 poseDiff() const { return pose * posePrev.inverseRigid(); }
+	private:
+		friend class VRSystem;
+		int implIndex = -1;
 	};
 
 
@@ -525,6 +528,8 @@ public:
 		return *this;
 	}
 
+	const TrackedDevice& hmd() const;
+
 	/// Get head pose, in world space
 	const Matrix4& poseHMD() const;
 
@@ -665,7 +670,7 @@ private:
 	TrackedDevice mTrackedDevices[MAX_TRACKED_DEVICES];
 	vr::TrackedDevicePose_t mTrackedDevicePoses[MAX_TRACKED_DEVICES];
 	std::vector<unsigned> mDeviceIndices[NUM_DEVICE_TYPES];
-	int mDevIdxHMD = -1;
+	int mDevIdxHMD = 0;
 
 	vr::VRControllerState_t mControllerStates[MAX_TRACKED_DEVICES];
 	Controller mControllers[MAX_TRACKED_DEVICES];

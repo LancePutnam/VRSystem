@@ -138,9 +138,11 @@ VRSystem::VRSystem(int flags)
 :	 mFlags(flags)
 {
 	mParentPose.identity();
-	for(auto& v : mTrackedDevices){
-		v.pose.identity();
-		v.posePrev.identity();
+	for(unsigned i=0; i < MAX_TRACKED_DEVICES; ++i){
+		auto& dev = mTrackedDevices[i];
+		dev.pose.identity();
+		dev.posePrev.identity();
+		dev.implIndex = i;
 	}
 	mViewHMD.identity();
 	for(auto& v : mView) v.identity();
@@ -1268,6 +1270,7 @@ bool VRSystem::grabCameraFrame(){
 void VRSystem::print() const {
 	printf("[VR] %d x %d @ %g Hz, near: %g, far: %g\n", renderWidth(), renderHeight(), frameRate(), near(), far());
 }
+
 
 Matrix4 toMatrix4(const vr::HmdMatrix34_t& mat){
 	return Matrix4{{ // appears transposed since Matrix4 data is column-major
