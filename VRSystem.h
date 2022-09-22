@@ -658,6 +658,9 @@ public:
 	FrameType frameType() const { return mFrameType; }
 	const Matrix4& cameraProj(int i) const { return mCameraProjs[i]; }
 
+	std::string manufacturer(const TrackedDevice& dev) const;
+	std::string model(const TrackedDevice& dev) const;
+
 	void print() const;
 
 	vr::IVRSystem& impl(){ return *mImpl; }

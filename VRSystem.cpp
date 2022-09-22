@@ -1267,6 +1267,22 @@ bool VRSystem::grabCameraFrame(){
 	return true;
 }
 
+template <int BufSize=64>
+std::string devPropString(vr::IVRSystem * impl, int devIndex, vr::ETrackedDeviceProperty prop){
+	auto err = vr::TrackedProp_Success;
+	char str[BufSize];
+	impl->GetStringTrackedDeviceProperty(devIndex, prop, str, sizeof(str), &err);
+	return vr::TrackedProp_Success == err ? str : "";
+}
+
+std::string VRSystem::manufacturer(const TrackedDevice& dev) const {
+	return devPropString(mImpl, dev.implIndex, vr::Prop_ManufacturerName_String);
+}
+
+std::string VRSystem::model(const TrackedDevice& dev) const {
+	return devPropString(mImpl, dev.implIndex, vr::Prop_ModelNumber_String);
+}
+
 void VRSystem::print() const {
 	printf("[VR] %d x %d @ %g Hz, near: %g, far: %g\n", renderWidth(), renderHeight(), frameRate(), near(), far());
 }
