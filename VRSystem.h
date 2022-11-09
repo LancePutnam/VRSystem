@@ -122,8 +122,6 @@ public:
 			return *this;
 		}
 
-		template <class T> const T& pun() const { return *(T*)m; }
-		template <class T> T& pun(){ return *(T*)m; }
 		float * data(){ return m; }
 		const float * data() const { return m; }
 		template <class T> const T& as() const {
