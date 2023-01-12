@@ -192,6 +192,9 @@ bool VRSystem::init(){
 		//DPRINTF("VR runtime path: %s\n", vr::VR_RuntimePath());
 	}
 
+	//printf("%s %s\n", manufacturer(hmd()).c_str(), model(hmd()).c_str());
+	// Vive Pro Eye: HTC, VIVE_Pro MV
+
 	if(manufacturer(hmd()).find("HTC") != std::string::npos){
 		mUseCustomHiddenAreaMask = true;
 	}
@@ -559,7 +562,7 @@ void VRSystem::render(std::function<void (void)> userDraw){
 	//glFlush();
 	//glFinish();
 
-	// OpenVR example updates poses _after_ render commands, however this introduces tons of jitter.
+	// OpenVR example updates poses after render commands AND the window buffer swap:
 	// https://github.com/ValveSoftware/openvr/blob/5aa6c5f0f6520c59c4dce124541ecc62604fd7a5/samples/hellovr_opengl/hellovr_opengl_main.cpp#L847
 	if(!updatePosesBeforeRender) updatePoses();
 	
