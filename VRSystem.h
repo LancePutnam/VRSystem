@@ -33,12 +33,13 @@ public:
 	};
 
 	enum DeviceType{
-		INVALID				= 0,
+		INVALID_DEVICE		= 0,
 		HMD					= 1,
 		CONTROLLER			= 2,
 		TRACKER				= 3,
 		TRACKING_REFERENCE	= 4,
-		NUM_DEVICE_TYPES
+		UNKNOWN_DEVICE,
+		NO_DEVICE_TYPE
 	};
 
 	/// Event types
@@ -273,11 +274,11 @@ public:
 
 
 	struct TrackedDevice{
-		DeviceType type = INVALID;
+		DeviceType type = INVALID_DEVICE;
 		Matrix4 pose;		///< Virtual world pose (can have transform parent)
 		Matrix4 posePrev;
 		Matrix4 poseAbs;	///< Absolute (tracking space) pose
-		bool valid() const { return INVALID!=type; }
+		bool valid() const { return INVALID_DEVICE!=type; }
 		void updatePose(const Matrix4& v){ posePrev=pose; pose=v; poseAbs=v; }
 		void updatePose(const Matrix4& v, const Matrix4& parent){ posePrev=pose; pose=parent*v; poseAbs=v; }
 		/// Get pose differential
@@ -670,7 +671,7 @@ private:
 	int mFlags = 0;
 	TrackedDevice mTrackedDevices[MAX_TRACKED_DEVICES];
 	vr::TrackedDevicePose_t mTrackedDevicePoses[MAX_TRACKED_DEVICES];
-	std::vector<unsigned> mDeviceIndices[NUM_DEVICE_TYPES];
+	std::vector<unsigned> mDeviceIndices[NO_DEVICE_TYPE];
 	int mDevIdxHMD = 0;
 
 	vr::VRControllerState_t mControllerStates[MAX_TRACKED_DEVICES];

@@ -66,7 +66,8 @@ VRSystem::DeviceType fromOVRDeviceClass(vr::ETrackedDeviceClass v){
 	case vr::TrackedDeviceClass_Controller: return VRSystem::CONTROLLER;
 	case vr::TrackedDeviceClass_GenericTracker: return VRSystem::TRACKER;
 	case vr::TrackedDeviceClass_TrackingReference: return VRSystem::TRACKING_REFERENCE;
-	default: return VRSystem::INVALID;
+	case vr::TrackedDeviceClass_Invalid: return VRSystem::INVALID_DEVICE;
+	default: return VRSystem::UNKNOWN_DEVICE;
 	}
 }
 /*
@@ -777,7 +778,7 @@ void VRSystem::updatePoses(){
 			}
 
 		} else {
-			dev.type = INVALID;
+			dev.type = INVALID_DEVICE;
 		}
 	}
 
@@ -1311,7 +1312,9 @@ const char * toString(VRSystem::EventType v){
 
 const char * toString(VRSystem::DeviceType v){
 	switch(v){
-		CS(INVALID) CS(HMD) CS(CONTROLLER) CS(TRACKER) CS(TRACKING_REFERENCE)
+		CS(INVALID_DEVICE)
+		CS(HMD) CS(CONTROLLER) CS(TRACKER) CS(TRACKING_REFERENCE)
+		CS(UNKNOWN_DEVICE)
 		default: return "";
 	}
 }
