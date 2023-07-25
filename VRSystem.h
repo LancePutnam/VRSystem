@@ -344,6 +344,10 @@ public:
 		/// \returns the sector number or -1 if the origin was pressed
 		int axisSector(Button b, float divs=4., float rotate=0.125) const;
 
+		/// Get trigger value
+		float trigger() const { return axis(TRIGGER)[0]; }
+		
+
 		Controller& operator= (const TrackedDevice& d){
 			if(&d != this) static_cast<TrackedDevice&>(*this) = d;
 			return *this;
