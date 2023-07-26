@@ -88,10 +88,13 @@ public:
 		Vec4(const float * src){ set(src); }
 		float * data(){ return &x; }
 		const float * data() const { return &x; }
-		template <class T> const T& as() const {
+		template <class T> T& as(){
 			static_assert(sizeof(T)<=sizeof(*this),"Size mismatch");
 			static_assert(std::is_same<typename T::value_type,value_type>::value,"Type mismatch");
 			return *((T*)this);
+		}
+		template <class T> const T& as() const {
+			return const_cast<Vec4*>(this)->as<T>();
 		}
 		Vec4& operator= (const Vec4& v){ x=v.x; y=v.y; z=v.z; w=v.w; return *this; }
 		float& operator[] (unsigned i){ return (&x)[i]; }
@@ -152,18 +155,17 @@ public:
 			constexpr auto i4 = i+12;
 			return Vec4(m[i],m[i2],m[i3],m[i4]);
 		}
-		/// Get local direction vector along x axis
-		Vec4& ux(){ return col<0>(); }
-		const Vec4& ux() const { return col<0>(); }
-		/// Get local direction vector along y axis
-		Vec4& uy(){ return col<1>(); }
-		const Vec4& uy() const { return col<1>(); }
-		/// Get local direction vector along z axis
-		Vec4& uz(){ return col<2>(); }
-		const Vec4& uz() const { return col<2>(); }
-		/// Get position/translation amount
-		Vec4& pos(){ return col<3>(); }
-		const Vec4& pos() const { return col<3>(); }
+
+		#define DEF_MATRIX4_COL_ALIAS(name, i)\
+		template <class Vec=Vec4> Vec& name(){ return col<i>().as<Vec>(); }\
+		template <class Vec=Vec4> const Vec& name() const { return const_cast<Matrix4*>(this)->pos<Vec>(); }
+
+		DEF_MATRIX4_COL_ALIAS(ux, 0) ///< Get direction vector along local x axis
+		DEF_MATRIX4_COL_ALIAS(uy, 1) ///< Get direction vector along local y axis
+		DEF_MATRIX4_COL_ALIAS(uz, 2) ///< Get direction vector along local z axis
+		DEF_MATRIX4_COL_ALIAS(pos,3) ///< Get position/translation amount
+
+		#undef DEF_MATRIX4_COL_ALIAS
 
 		template <unsigned DirAxis>
 		Vec4 posAlong(float s) const {
