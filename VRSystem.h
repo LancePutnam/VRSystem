@@ -562,7 +562,7 @@ public:
 	const Vec4& eye(int which) const;
 	const Vec4& eye() const { return eye(eyePass());  } 
 
-	/// Get eye to screen transform
+	/// Get eye to screen (projection) transform
 	const Matrix4& eyeToScreen(int eye) const;
 	const Matrix4& eyeToScreen() const { return eyeToScreen(eyePass()); }
 
@@ -574,6 +574,9 @@ public:
 	const Matrix4& headToEye() const { return headToEye(eyePass()); }
 
 	/// Get eye to head transform
+
+	/// Useful for HUDs via transform proj * eyeToHead * model.
+	///
 	const Matrix4& eyeToHead(int eye) const;
 	const Matrix4& eyeToHead() const { return eyeToHead(eyePass()); }
 
