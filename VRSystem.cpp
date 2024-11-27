@@ -518,6 +518,7 @@ void VRSystem::render(std::function<void (void)> userDraw){
 			glPopMatrix();
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		#ifdef MULTISAMPLING
+			// Downsample render buffer into resolve buffer (which goes to HMD)
 			glDisable(GL_MULTISAMPLE);
 			glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo.mRenderBuf);
 			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo.mResolveBuf);
@@ -1069,17 +1070,9 @@ bool VRSystem::FBO::create(int w, int h){
 	// Only RGBA8 supported! See https://github.com/ValveSoftware/openvr/issues/290
 	GLint texelFormat=GL_RGBA8; // original values used by OpenVR
 	//GLint texelFormat=GL_RGB32F; // nothing in HMD
-	//GLint texelFormat=GL_R11F_G11F_B10F; // wrong in HMD
 	//GLint texelFormat=GL_RGB16F; // nothing in HMD
-	//GLint texelFormat=GL_RGBA16F; // nothing in HMD
-	//GLint texelFormat=GL_RGBA32F; // nothing in HMD
-	//GLint texelFormat=GL_RGB10_A2; // wrong in HMD
 	//GLint texelFormat=GL_RGBA12; // OK in HMD
 	//GLint texelFormat=GL_RGBA16; // nothing in HMD
-	//GLint texelFormat=GL_RGB10; // wrong in HMD
-	//GLint texelFormat=GL_RGB10; // wrong in HMD
-	//GLint texelFormat=GL_RGB12; // wrong in HMD
-	//GLint texelFormat=GL_RGB16_SNORM; // nothing in HMD
 
 	#ifdef MULTISAMPLING
 	glGenFramebuffers(1, &mRenderBuf);
@@ -1092,10 +1085,14 @@ bool VRSystem::FBO::create(int w, int h){
 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER,	mDepthBuf);
 
 		// Render texture is multisampled to smooth polygon edges
-		glGenTextures(1, &mRenderTex);
-		glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, mRenderTex);
-		glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, numSamples, GL_RGBA8, w, h, true);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, mRenderTex, 0);
+		{ auto& tex = mRenderTex;
+			auto target = GL_TEXTURE_2D_MULTISAMPLE;
+			glGenTextures(1, &tex);
+			glBindTexture(target, tex);
+				glTexImage2DMultisample(target, numSamples, GL_RGBA8, w, h, true);
+			glBindTexture(target, 0);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, target, tex, 0);
+		}
 
 		printGLError("GL_TEXTURE_2D_MULTISAMPLE");
 	#endif //MULTISAMPLING
@@ -1111,17 +1108,22 @@ bool VRSystem::FBO::create(int w, int h){
 		#endif
 
 		// Resolve texture is the antialiased texture that we send to the HMD
-		glGenTextures(1, &mResolveTex);
-		glBindTexture(GL_TEXTURE_2D, mResolveTex);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
-		glTexImage2D(GL_TEXTURE_2D, 0, texelFormat, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-		printGLError("glTexImage2D on resolve tex");
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mResolveTex, 0);
-		printGLError("glFramebufferTexture2D on resolve frame buf");
+		{ auto& tex = mResolveTex;
+			auto target = GL_TEXTURE_2D;
+			glGenTextures(1, &tex);
+			glBindTexture(target, tex);
+				glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+				glTexParameteri(target, GL_TEXTURE_MAX_LEVEL, 0);
+				glTexImage2D(target, 0, texelFormat, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+				printGLError("glTexImage2D on resolve tex");
+			glBindTexture(target, 0);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, target, tex, 0);
+			printGLError("glFramebufferTexture2D on resolve frame buf");
+		}
 
-	GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	auto status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 	printGLError("glCheckFramebufferStatus");
+
 	if(status != GL_FRAMEBUFFER_COMPLETE){
 		return false;
 	}
