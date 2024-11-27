@@ -460,7 +460,7 @@ public:
 	/// @param[in] stretchy		stretch factor along y axis
 	/// @param[in] anchorx		origin of x stretch; [0,1] -> [left, right]
 	/// @param[in] anchory		origin of y stretch; [0,1] -> [bottom, top]
-	void drawFrameBuffer(int eye=0, float stretchx=1, float stretchy=1, float anchorx=0, float anchory=0) const;
+	void drawFrameBuffer(int eye=LEFT, float stretchx=1, float stretchy=1, float anchorx=0, float anchory=0) const;
 
 	/// Set brightness of drawFrameBuffer
 	VRSystem& drawBrightness(float v){ mBright = v; return *this; }
