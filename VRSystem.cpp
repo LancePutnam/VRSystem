@@ -624,6 +624,12 @@ void VRSystem::drawFrameBuffer(int eye, float sx, float sy, float ax, float ay) 
 	drawTexture(eye==LEFT ? mFBOLeft.mResolveTex : mFBORight.mResolveTex, sx,sy, ax,ay);
 }
 
+void VRSystem::drawFrameBufferAspect(int eye, float width, float height) const {
+	auto ystretch = float(renderHeight())/renderWidth() * width/height;
+	// last two args are offsets in [0,1] NDC
+	drawFrameBuffer(eye, 1.f,ystretch, 0.f,-(ystretch-1.f)*0.5f);
+}
+
 VRSystem& VRSystem::eyeDistScale(float v){
 	mEyeDistScale = v;
 	return *this;

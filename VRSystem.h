@@ -1,10 +1,15 @@
+/* VRSystem - Simplified Interface to a VR Headset and Controllers
+
+Lance Putnam, 2016
+*/
+
 #ifndef VRSYSTEM_HPP_INC
 #define VRSYSTEM_HPP_INC
 
 #include <functional>
 #include <type_traits> // is_same
 #include <vector>
-	#if defined(__MSYS__) || defined(__MINGW32__)
+#if defined(__MSYS__) || defined(__MINGW32__)
 	// MinGW/MinGW-w64 compatible header courtesy of:
 	// https://gist.github.com/tunabrain/84a3f234d4baa6d438b642f14522999c
 	// https://github.com/ValveSoftware/openvr/issues/133
@@ -461,6 +466,9 @@ public:
 	/// @param[in] anchorx		origin of x stretch; [0,1] -> [left, right]
 	/// @param[in] anchory		origin of y stretch; [0,1] -> [bottom, top]
 	void drawFrameBuffer(int eye=LEFT, float stretchx=1, float stretchy=1, float anchorx=0, float anchory=0) const;
+
+	/// Draw rendered scene to viewport preserving aspect
+	void drawFrameBufferAspect(int eye, float width, float height) const;
 
 	/// Set brightness of drawFrameBuffer
 	VRSystem& drawBrightness(float v){ mBright = v; return *this; }
